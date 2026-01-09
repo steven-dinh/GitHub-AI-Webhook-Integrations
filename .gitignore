@@ -1,0 +1,57 @@
+node_modules/
+.env
+.env.template
+*.log
+dist/
+.DS_Store
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Runtime files
+pids/
+*.pid
+
+# Environment files
+.env
+.env.local
+.env.*.local
+.env.template
+
+# Build output
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Dependency directories
+.cache/
+.parcel-cache/
+
+# Editor directories
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*~
+
+# Packaging
+*.tgz
+
+# Others
+.eslintcache
+npm-debug.log
+yarn-error.log
