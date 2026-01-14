@@ -161,7 +161,7 @@ class GithubService {
     async postReviewComment(owner, repo, prNumber, commentBody) {
 
         try {
-            logger.info("Posting review comment", { owner, repo, prNuber });
+            logger.info("Posting review comment", { owner, repo, prNumber });
 
             const { data } = await this.octokit.pulls.createReview({
                 owner,
