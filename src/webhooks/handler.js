@@ -12,8 +12,8 @@ const eventStats = {
     ping: 0,
     pull_request: 0,
     pull_request_review: 0,
-    other: 0,
-    push: 0
+    push: 0,
+    other: 0
 }
 
 class WebhookHandler {
