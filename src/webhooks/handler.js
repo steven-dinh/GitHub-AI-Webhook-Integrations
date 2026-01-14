@@ -123,7 +123,8 @@ class WebhookHandler {
             repo: prInfo.repo
         });
 
-        console.log();
+        const {owner, repo} = prInfo;
+        await services.postReviewComment(owner, repo, prInfo.number, "pull request test")
 
         // In Phase 2+, we'll:
         // 1. Add to a job queue (Bull, BullMQ, or Redis)
