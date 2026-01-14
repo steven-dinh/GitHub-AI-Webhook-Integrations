@@ -167,7 +167,7 @@ class GithubService {
                 owner,
                 repo,
                 pull_number: prNumber,
-                body,
+                commentBody,
                 event: 'COMMENT' // 'APPROVE', 'REQUEST_CHANGES', 'COMMENT'
             });
 
