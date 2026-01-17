@@ -2,12 +2,7 @@ const logger = require("../utils/logger");
 const services = require("../services/services");
 const diffParser = require("../services/diffParser");
 
-/**
- * Handles GitHub webhook events.
- * @param {string} eventType - The type of GitHub event.
- * @param {object} payload - The payload of the webhook event.
- *
- */
+// Monitor event stats.
 const eventStats = {
     ping: 0,
     pull_request: 0,
@@ -15,11 +10,17 @@ const eventStats = {
     other: 0,
 };
 
+/**
+ * Handles GitHub webhook events.
+ * @param {string} eventType - The type of GitHub event.
+ * @param {object} payload - The payload of the webhook event.
+ *
+ */
 class WebhookHandler {
     /**
-     *  Handles the incoming POST webhook event.
-     * @param {*} eventType
-     * @param {*} payload
+     * Handles the incoming POST receive webhook event.
+     * @param {string} eventType
+     * @param {object} payload
      */
     async handleEvent(eventType, payload) {
         logger.info("Processing webhook event", {
@@ -57,7 +58,7 @@ class WebhookHandler {
 
     /**
      * Handles pull request events.
-     * @param {*} payload
+     * @param {object} payload
      * @returns
      */
     async handlePullRequest(payload) {
@@ -74,10 +75,10 @@ class WebhookHandler {
         const prInfo = {
             number: pull_request.number,
             title: pull_request.title,
-            author: pull_request.user.login, // ✅ Rename to 'author'
-            repoOwner: repository.owner.login, // ✅ Add repository owner
-            repoName: repository.name, // ✅ Add just the repo name
-            repo: repository.full_name, // Keep full name for display
+            author: pull_request.user.login,
+            repoOwner: repository.owner.login,
+            repoName: repository.name,
+            repo: repository.full_name,
             baseBranch: pull_request.base.ref,
             headBranch: pull_request.head.ref,
             additions: pull_request.additions,
@@ -96,7 +97,7 @@ class WebhookHandler {
 
     /**
      * Handles pull request review events.
-     * @param {*} payload
+     * @param {object} payload
      */
     async handlePullRequestReview(payload) {
         // This fires when someone submits a review on a PR
@@ -108,13 +109,13 @@ class WebhookHandler {
             reviewer: review.user.login,
             state: review.state, // approved, changes_requested, commented
         });
-        
+
         // TODO: Store this for training data collection
     }
 
     /**
      * Queues the PR for review processing.
-     * @param {*} prInfo
+     * @param {object} prInfo
      */
     async queueReview(prInfo) {
         // For now, just simulate processing
@@ -122,17 +123,21 @@ class WebhookHandler {
             pr: prInfo.number,
             repo: prInfo.repo,
         });
-
+        
+        const diff = await services.getPRDiff(prInfo.repoOwner, prInfo.repoName, prInfo.number);
+        const diffAnalysis = await diffParser.analyzeDiff(diff);
+        
+        console.log(diffAnalysis);
+        
         // In Phase 2+, we'll:
         // 1. Add to a job queue (Bull, BullMQ, or Redis)
         // 2. Worker processes pick up jobs
         // 3. Fetch PR diff and analyze
         // 4. Generate AI suggestions
         // 5. Post back to GitHub
-
+        
         // Simulate async work
         await new Promise((resolve) => setTimeout(resolve, 1000));
-
         logger.info("Review queued successfully", { pr: prInfo.number });
     }
 }

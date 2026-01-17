@@ -1,6 +1,9 @@
 const { Octokit } = require("@octokit/rest");
 const logger = require("../utils/logger");
 
+/**
+ * GithubService class provides methods to interact with GitHub API.
+ */
 class GithubService {
     // Initilaze Octokit with auth token.
     constructor() {
@@ -12,15 +15,16 @@ class GithubService {
             auth: process.env.GITHUB_TOKEN,
         });
 
-        logger.info("Github Service initialized.");
+        logger.info("GitHub Service Initialized");
     }
 
     /**
      *  Fetches detailed pull request information from GitHub.
-     * @param {*} owner
-     * @param {*} repo
-     * @param {*} prNumber
-     * @returns
+     * @param {string} owner
+     * @param {string} repo
+     * @param {number} prNumber
+     *
+     * @returns {object}
      */
     async getPullRequest(owner, repo, prNumber) {
         try {
@@ -31,8 +35,6 @@ class GithubService {
                 repo,
                 pull_number: prNumber,
             });
-
-            console.log(data);
 
             return {
                 number: data.number,
@@ -61,6 +63,8 @@ class GithubService {
      * @param {String} owner
      * @param {String} repo
      * @param {number} prNumber
+     *
+     * @returns {Array{object}}
      */
     async getPRFiles(owner, repo, prNumber) {
         try {
@@ -91,12 +95,15 @@ class GithubService {
         }
     }
 
+    // REQUIRES TESTING
     /**
      * Gets the contents of the file at given path in the repository.
-     * @param {*} owner
-     * @param {*} repo
-     * @param {*} filePath
-     * @param {*} ref
+     * @param {string} owner
+     * @param {string} repo
+     * @param {string} filePath
+     * @param {string} ref
+     *
+     * @returns {Array{object}}
      */
     async getFileContent(owner, repo, filePath, ref) {
         try {
@@ -126,7 +133,6 @@ class GithubService {
                 path: data.path,
             };
         } catch (error) {
-            
             if (error.status === 404) {
                 logger.warn("File not found in repository", {
                     owner,
@@ -143,6 +149,13 @@ class GithubService {
         }
     }
 
+    /**
+     * Fetches detailed pull request information from GitHub.
+     * @param {string} owner
+     * @param {string} repo
+     * @param {number} prNumber
+     * @returns Array{object}
+     */
     async getPRDiff(owner, repo, prNumber) {
         try {
             logger.info("Fetching PR Diff", { owner, repo, prNumber });
@@ -163,14 +176,14 @@ class GithubService {
         }
     }
 
-    // Phase 3.
+    // REQUIRES TESTING
     /**
      * Posts a review comment on the given pull request.
-     * @param {*} owner
-     * @param {*} repo
-     * @param {*} prNumber
-     * @param {*} commentBody
-     * @param {*} path 'src/index.ts'
+     * @param {string} owner
+     * @param {string} repo
+     * @param {number} prNumber
+     * @param {string} commentBody
+     * @param {string} path 'src/index.ts'
      */
     async createReviewComment(owner, repo, prNumber, commentBody, path) {
         try {
@@ -190,16 +203,21 @@ class GithubService {
         }
     }
 
+    // @TODO
     /**
      * Post inline comment on specific pull request.
-     * @param {*} owner
-     * @param {*} repo
-     * @param {*} prNumber
-     * @param {*} comment
+     * @param {String} owner
+     * @param {String} repo
+     * @param {number} prNumber
+     * @param {String} comment
      */
     async postInLineComment(owner, repo, prNumber, comment) {
         try {
-        } catch (error) {}
+        } catch (error) {
+            logger.info("Error posting inline comment", {
+                error: error.message,
+            });
+        }
     }
 }
 

@@ -29,7 +29,7 @@ app.get("/webhooks/github", (req, res) => {
 });
 
 // Github Webhook Endpoint.
-app.post("/webhooks/github", async (req, res) => {
+app.post("/api/webhooks", async (req, res) => {
     try {
         // Get the signature from headers.
         const signature = req.headers["x-hub-signature-256"];

@@ -1,4 +1,3 @@
-// const { add } = require("winston");
 const { debug } = require("winston");
 const logger = require("../utils/logger");
 
@@ -8,7 +7,7 @@ const logger = require("../utils/logger");
 class DiffParser {
     /**
      * Parses patch for added lines.
-     * @param {*} patch
+     * @param {string} patch
      * @returns {Array{}} Array of (objects) added lines
      */
     getAddedLines(patch) {
@@ -33,7 +32,7 @@ class DiffParser {
             if (line.startsWith("+") && !line.startsWith("+++")) {
                 addedLines.push({
                     lineNumber: newLineNumber,
-                    context: line.slice(1),
+                    content: line.slice(1),
                 });
                 newLineNumber++;
                 continue;
@@ -51,7 +50,7 @@ class DiffParser {
 
     /**
      * Parses patch for removed lines.
-     * @param {*} patch
+     * @param {string} patch
      * @returns {Array{}} Array of (object) removed lines
      */
     getDeletedLines(patch) {
@@ -76,7 +75,7 @@ class DiffParser {
             if (line.startsWith("-") && !line.startsWith("---")) {
                 addedLines.push({
                     lineNumber: newLineNumber,
-                    context: line.slice(1),
+                    content: line.slice(1),
                 });
 
                 newLineNumber++;
@@ -95,7 +94,7 @@ class DiffParser {
 
     /**
      * Grabs the extension of the filename to detect language.
-     * @param {*} filename
+     * @param {string} filename
      */
     detectLanguage(patch) {
         for (const line of patch.split("\n")) {
@@ -115,7 +114,9 @@ class DiffParser {
 
     /**
      * Checks if the file is a common test file name.
-     * @param {*} filename
+     * 
+     * Any other remaining patterns not found will be detected using AI instead.
+     * @param {string} filename
      */
     isTestFile(filename) {
         const testPatterns = [
@@ -132,8 +133,18 @@ class DiffParser {
     }
 
     /**
-     * Checks if the current patch has functions.
+     * Checks if the current patch has changed/updated functions.
      *
+     * Common Patterns:
+     * - JavaScript/TypeScript: function declarations or arrow functions.
+     * - Python: def statements.
+     * - Java: public static void main(String[] args) or public void methodName() throws Exception.
+     * - Go: func functionName(parameters) returnType.
+     * - Rust: fn functionName(parameters) -> returnType.
+     * - Ruby: def methodName(parameters)
+     *
+     * Any other remaining patterns not found will be detected using AI instead.
+     * 
      * @param {Array<{lineNumber: number, context: string}>} addedLines
      * @param {string} language
      */
@@ -151,6 +162,7 @@ class DiffParser {
         // Sets current Language.
         let currentLanguage = language;
 
+        // Patterns from common languages.
         let patterns = {
             js: {
                 // Function declarations
@@ -221,6 +233,17 @@ class DiffParser {
     }
 
     /**
+     * Parses through added lines to find changed or new imports.
+     *
+     * Common Patterns:
+     * - JavaScript/TypeScript: import statements or require calls.
+     * - Python: import statements or from ... import statements.
+     * - Java: import statements.
+     * - Go: import statements.
+     * - Rust: use statements.
+     * - Ruby: require statements.
+     * 
+     * Any other remaining patterns not found will be detected using AI instead.
      *
      * @param {Array<{ lineNumber: number, context: string }>} addedLines
      * @param {string} language
@@ -251,7 +274,15 @@ class DiffParser {
     }
 
     /**
+     * Parses through added lines to find changed or new imports. Any other remaining patterns 
+     * not found will be detected using AI instead
      *
+     * Common Patterns:
+     * - rust
+     * - python
+     * - java
+     * - go
+     * - ruby
      * @param {Array<{ lineNumber: number, context: string }>} addedLines
      * returns {Array<{ lineNumber: number, context: string }>} addedTest
      */
@@ -278,7 +309,12 @@ class DiffParser {
     }
 
     /**
-     * Analyzes the diff and returns an object with information about the changes.
+     * Analyzes the diff and returns an object with information about
+     * - Changes in tests cases
+     * - Changes in imports
+     * - Changes in added lines and deleted lines
+     * - Filename
+     * - Language
      * @returns object
      * @param {string} patch
      */
@@ -308,8 +344,11 @@ class DiffParser {
             ),
 
             // Checking for test changes
-            hasTestChanges: this.isTestFile(this.detectLanguage(patch)) ? this.hasTestChanges(this.getAddedLines(patch)) : false,
+            hasTestChanges: this.isTestFile(this.detectLanguage(patch))
+                ? this.hasTestChanges(this.getAddedLines(patch))
+                : false,
         };
+        
         return parsed;
     }
 }
