@@ -79,7 +79,7 @@ class AIReviewer {
             ### 2. INSTRUCTIONS ###
             1. Use the ANALYSIS METADATA to understand the context:
                - Review the 'addedLines' and "deletedLines" content.
-               - If "isTestFile" is True, TELL the user that they should NOT review its logic; FOCUS on production code instead. Warn the user of the TEST FILE. ( ALSO CHECK IF THERE ARE ANY OTHER TEST FILES )
+               - If "isTestFile" is True, DO NOT REVIEW TEST FILES; FOCUS on production code instead. Warn the user of the TEST FILE. ( ALSO CHECK IF THERE ARE ANY OTHER TEST FILES )
                - If "hasNewFunctions" has content, pay CLOSE ATTENTION to the logic in those functions
                - Check if "hasImportChanges", has imports that are NECESSARY, or could they introduce PERFORMANCE or SECURITY issues.
             2. MAKE SURE that code aligns with the style conventions of the LANGUAGE the file is in.
