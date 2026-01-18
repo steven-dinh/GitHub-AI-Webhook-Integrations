@@ -22,7 +22,6 @@ pids/
 .env
 .env.local
 .env.*.local
-.env.template
 
 # Build output
 dist/
@@ -55,3 +54,4 @@ temp/
 .eslintcache
 npm-debug.log
 yarn-error.log
+.vercel
