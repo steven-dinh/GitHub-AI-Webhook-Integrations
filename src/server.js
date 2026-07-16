@@ -64,14 +64,12 @@ app.post("/api/webhooks", async (req, res) => {
         logger.info("Webhook verified", { event, id });
 
         // Enqueue review job — worker processes it asynchronously.
-        try {
-            await webhookHandler.handleEvent(event, req.body);
-            logger.info("Webhook event handled", { event, id });
-
-        } catch (error) {
-            // Response already sent to GitHub above; only log the async failure.
-            logger.error("Error processing review job", { event, id, error: error.message });
-        }
+        webhookHandler.handleEvent(event, req.body)
+            .then(() => logger.info("Webhook event handled", { event, id }))
+            .catch((error) => {
+                // Response already sent to GitHub above; only log the async failure.
+                logger.error("Error processing review job", { event, id, error: error.message });
+            });
 
     } catch (error) {
         logger.error("Error handling webhook", { error: error.message });

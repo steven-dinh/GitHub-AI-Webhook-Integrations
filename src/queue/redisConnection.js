@@ -10,7 +10,15 @@ function safeDecode(str) {
     }
 }
 
-function validateRedisUrl(url) {
+function validateRedisUrl(value) {
+    let url;
+
+    try {
+        url = value instanceof URL ? value : new URL(value);
+    } catch {
+        throw new Error("Invalid REDIS_URL: URL could not be parsed.");
+    }
+
     if (!ALLOWED_PROTOCOLS.has(url.protocol)) {
         throw new Error(`Invalid REDIS_URL: Unsupported protocol "${url.protocol}".`);
     }
@@ -38,17 +46,17 @@ function validateRedisUrl(url) {
     return {
         host: url.hostname,
         port,
-        tls: url.protocol === "rediss:",
+        ...(url.protocol === "rediss:" && { tls: {} }),
         ...(url.username !== "" && { username: safeDecode(url.username) }),
         ...(url.password !== "" && { password: safeDecode(url.password) }),
     };
 }
 
 try {
-    const url = new URL(process.env.REDIS_URL || "redis://localhost:6379");
-    module.exports = validateRedisUrl(url);
+    const connection = validateRedisUrl(process.env.REDIS_URL || "redis://localhost:6379");
+    module.exports = { connection, validateRedisUrl };
 
 } catch (error) {
-    logger.error("Invalid REDIS_URL configuration");
+    logger.error("Invalid REDIS_URL configuration", { error });
     throw error;
 }

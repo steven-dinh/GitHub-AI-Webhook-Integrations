@@ -122,11 +122,21 @@ class WebhookHandler {
             owner: prInfo.repoOwner,
         });
 
-        await reviewQueue.add("review", {
-            owner: prInfo.repoOwner,
-            repo: prInfo.repoName,
-            prNumber: prInfo.number,
-        });
+        try {
+            await reviewQueue.add("review", {
+                owner: prInfo.repoOwner,
+                repo: prInfo.repoName,
+                prNumber: prInfo.number,
+            });
+        } catch (error) {
+            logger.error("Failed to enqueue PR review job", {
+                owner: prInfo.repoOwner,
+                repo: prInfo.repoName,
+                prNumber: prInfo.number,
+                error,
+            });
+            throw error;
+        }
 
         logger.info("PR review job enqueued", {
             pr: prInfo.number,
