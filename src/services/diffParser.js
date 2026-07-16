@@ -1,13 +1,16 @@
 const logger = require("../utils/logger");
 
+const JAVASCRIPT_FUNCTION_PATTERNS = {
+    function: /^\s*(export\s+)?(async\s+)?function\s+\w+\s*\(/,
+    arrow: /^\s*(export\s+)?(const|let|var)\s+\w+\s*=\s*(async\s*)?\([^)]*\)\s*=>/,
+    expression:
+        /^\s*(export\s+)?(const|let|var)\s+\w+\s*=\s*(async\s+)?function\s*\(/,
+    method: /^\s*(async\s+)?(\w+)\s*\([^)]*\)\s*{/,
+};
+
 const FUNCTION_PATTERNS = {
-    js: {
-        function: /^\s*(export\s+)?(async\s+)?function\s+\w+\s*\(/,
-        arrow: /^\s*(export\s+)?(const|let|var)\s+\w+\s*=\s*(async\s*)?\([^)]*\)\s*=>/,
-        expression:
-            /^\s*(export\s+)?(const|let|var)\s+\w+\s*=\s*(async\s+)?function\s*\(/,
-        method: /^\s*(async\s+)?(\w+)\s*\([^)]*\)\s*{/,
-    },
+    js: JAVASCRIPT_FUNCTION_PATTERNS,
+    ts: JAVASCRIPT_FUNCTION_PATTERNS,
     py: {
         function: /^\s*(async\s+)?def\s+\w+\s*\(/,
     },
@@ -21,9 +24,9 @@ const FUNCTION_PATTERNS = {
 };
 
 const IMPORT_PATTERNS = {
-    js: /import\s+.*from|require\s*\(/,
-    ts: /import\s+.*from|require\s*\(/,
-    py: /import\s+|from\s+.*import/,
+    js: /(import\s+.*from|require\s*\()/,
+    ts: /(import\s+.*from|require\s*\()/,
+    py: /(import\s+|from\s+.*import)/,
     java: /import\s+/,
     go: /import\s+\(/,
     rust: /use\s+/,
@@ -418,6 +421,8 @@ class DiffParser {
             // 3. File metadata
             filename: filename,
             isTestFile,
+            language,
+            missingPatterns,
 
             // 4. Basic patterns
             hasNewFunctions: this.containsNewFunctions(addedLines, language),
